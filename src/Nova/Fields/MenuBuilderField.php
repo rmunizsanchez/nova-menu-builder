@@ -15,7 +15,7 @@ class MenuBuilderField extends Field
         $this->withMeta([
             'locales' => MenuBuilder::getLocales(),
             'maxDepth' => 10,
-            'menuCount' => Menu::count(),
+            'menuCount' => MenuBuilder::getMenuClass()::count(),
             'showDuplicate' => MenuBuilder::showDuplicate(),
         ]);
     }

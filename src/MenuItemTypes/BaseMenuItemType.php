@@ -94,7 +94,7 @@ abstract class BaseMenuItemType
      *
      * @return array An array of fields.
      */
-    public static function getFields(): array
+    public static function getFields($resource): array
     {
         return [];
     }

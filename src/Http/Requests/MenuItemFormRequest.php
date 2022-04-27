@@ -25,15 +25,15 @@ class MenuItemFormRequest extends FormRequest
      */
     public function rules()
     {
-        return MenuBuilder::getRulesFromMenuLinkable($this->get('class'));
+        return [];//MenuBuilder::getRulesFromMenuLinkable($this->get('class'));
     }
 
     public function getValues()
     {
-        $keys = ['name', 'enabled', 'target', 'class', 'value', 'menu_id', 'locale'];
+        $keys = ['values'];
         foreach ($this->all() as $key => $value) {
             if (Str::startsWith($key, 'data->')) $keys[] = $key;
         }
-        return $this->only($keys);
+        return head($this->only($keys));
     }
 }

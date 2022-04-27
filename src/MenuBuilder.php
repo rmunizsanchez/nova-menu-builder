@@ -53,17 +53,17 @@ class MenuBuilder extends Tool
         return ['en' => 'English'];
     }
 
-    public static function getFieldsFromMenuItemTypeClass(string $menuItemTypeClass): array
+    public static function getFieldsFromMenuItemTypeClass(string $menuItemTypeClass, $resource): array
     {
         $templateFields = [];
 
         $handleField = function (&$field) {
             if (!empty($field->attribute) && ($field->attribute !== 'ComputedField')) {
                 if (empty($field->panel)) {
-                    $field->attribute = 'data->' . $field->attribute;
+                    $field->attribute = $field->attribute;
                 } else {
                     $sanitizedPanel = nova_menu_builder_sanitize_panel_name($field->panel);
-                    $field->attribute = 'data->' . $sanitizedPanel . '->' . $field->attribute;
+                    $field->attribute =  $sanitizedPanel . '->' . $field->attribute;
                 }
             }
 
@@ -71,7 +71,7 @@ class MenuBuilder extends Tool
         };
 
         if (isset($menuItemTypeClass) && method_exists($menuItemTypeClass, 'getFields')) {
-            $rawFields = $menuItemTypeClass::getFields();
+            $rawFields = $menuItemTypeClass::getFields($resource);
             foreach ($rawFields as $field) {
                 // Handle Panel
                 if ($field instanceof \Laravel\Nova\Panel) {
@@ -94,7 +94,9 @@ class MenuBuilder extends Tool
 
     public static function getRulesFromMenuLinkable(?string $menuLinkableClass)
     {
-        $menusTableName = MenuBuilder::getMenusTableName();
+        $menusTableNameClass = MenuBuilder::getMenuClass();
+        $menusTableName = (new $menusTableNameClass)->getConnectionName().'.'.(new $menusTableNameClass)->getTable();
+
 
         $menuItemRules = $menuLinkableClass ? $menuLinkableClass::getRules() : [];
         $dataRules = [];

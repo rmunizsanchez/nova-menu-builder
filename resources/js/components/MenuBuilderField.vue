@@ -153,6 +153,7 @@ export default {
       this.update = true;
       const menuItem = (await api.getMenuItem(item.id)).data;
       this.newItem = menuItem;
+      this.newItem.values = {};
       this.showAddModal = true;
       this.linkType = this.menuItemTypes.find(lt => lt.class === this.newItem.class);
     },

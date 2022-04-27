@@ -215,25 +215,28 @@ export default {
 
   methods: {
     storeWithData(eventType) {
+      this.$set(this.newItem.values, 'name', this.newItem.name);
+      this.$set(this.newItem.values, 'enabled', this.newItem.enabled);
       this.fields.forEach(field => {
-        const formData = new FormData();
-        field.fill(formData);
+        if (field.attribute) {
+          const formData = new FormData();
+          field.fill(formData);
 
-        const values = Array.from(formData.values());
+          const values = Array.from(formData.values());
+          if (field.component === 'trix-field') {
+            this.$set(this.newItem.values, field.attribute, values[0]);
+            return;
+          }
 
-        if (field.component === 'trix-field') {
-          this.$set(this.newItem, field.attribute, values[0]);
-          return;
-        }
-
-        // Is array
-        const firstKey = Array.from(formData.keys())[0];
-        if (firstKey && firstKey.endsWith(']')) {
-          this.$set(this.newItem, field.attribute, values || []);
-        } else {
-          if (values.length === 0) this.$set(this.newItem, field.attribute, void 0);
-          if (values.length === 1) this.$set(this.newItem, field.attribute, values[0]);
-          if (values.length > 1) this.$set(this.newItem, field.attribute, values);
+          // Is array
+          const firstKey = Array.from(formData.keys())[0];
+          if (firstKey && firstKey.endsWith(']')) {
+            this.$set(this.newItem.values, field.attribute, values || []);
+          } else {
+            if (values.length === 0) this.$set(this.newItem.values, field.attribute, void 0);
+            if (values.length === 1) this.$set(this.newItem.values, field.attribute, values[0]);
+            if (values.length > 1) this.$set(this.newItem.values, field.attribute, values);
+          }
         }
       });
 

@@ -4,6 +4,7 @@ namespace OptimistDigital\MenuBuilder\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Str;
 use OptimistDigital\MenuBuilder\MenuBuilder;
 use OptimistDigital\MenuBuilder\Models\Menu;
 use OptimistDigital\MenuBuilder\Http\Requests\MenuItemFormRequest;
@@ -12,7 +13,7 @@ class MenuController extends Controller
 {
     public function getMenus(Request $request)
     {
-        return Menu::all()->map(function (Menu $menu) {
+        return MenuBuilder::getMenuClass()::all()->map(function ($menu) {
             return [
                 'id' => $menu->id,
                 'title' => "{$menu->name} ({$menu->slug})",
@@ -81,12 +82,7 @@ class MenuController extends Controller
         if (empty($locale)) return response()->json(['menu' => 'locale_required_but_missing'], 400);
 
         $menuItems = $menu
-            ->rootMenuItems()
-            ->where('locale', $locale)
-            ->get()
-            ->filter(function ($item) {
-                return class_exists($item->class);
-            });
+            ->childs();
 
         return response()->json($menuItems, 200);
     }
@@ -117,7 +113,7 @@ class MenuController extends Controller
      * @param OptimistDigital\MenuBuilder\Http\Requests\MenuItemFormRequest $request
      * @return Illuminate\Http\Response
      **/
-    public function createMenuItem(MenuItemFormRequest $request)
+    public function createMenuItem(Request $request)
     {
         $menuItemModel = MenuBuilder::getMenuItemClass();
 
@@ -157,16 +153,18 @@ class MenuController extends Controller
      **/
     public function updateMenuItem(MenuItemFormRequest $request, $menuItemId)
     {
+
         $menuItem = MenuBuilder::getMenuItemClass()::find($menuItemId);
 
         if (!isset($menuItem)) return response()->json(['error' => 'menu_item_not_found'], 400);
         $data = $request->getValues();
 
-        $menuItem->data = [];
         foreach ($data as $key => $value) {
+            if (Str::contains($value, '{')) {
+                $value = json_decode($value, true);
+            }
             $menuItem->{$key} = $value;
         }
-
         $menuItem->save();
         return response()->json(['success' => true], 200);
     }
@@ -201,13 +199,13 @@ class MenuController extends Controller
         $menuItemTypes = [];
         $menuItemTypesRaw = MenuBuilder::getMenuItemTypes();
 
-        $formatAndAppendMenuItemType = function ($typeClass) use (&$menuItemTypes, $locale) {
+        $formatAndAppendMenuItemType = function ($typeClass) use ($menu, &$menuItemTypes, $locale) {
             if (!class_exists($typeClass)) return;
 
             $data = [
                 'name' => $typeClass::getName(),
                 'type' => $typeClass::getType(),
-                'fields' => MenuBuilder::getFieldsFromMenuItemTypeClass($typeClass) ?? [],
+                'fields' => MenuBuilder::getFieldsFromMenuItemTypeClass($typeClass, $menu) ?? [],
                 'class' => $typeClass
             ];
 
