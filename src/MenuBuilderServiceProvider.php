@@ -17,7 +17,7 @@ class MenuBuilderServiceProvider extends ServiceProvider
     public function boot()
     {
         // Load views
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'nova-menu');
+        //$this->loadViewsFrom(__DIR__ . '/../resources/views', 'nova-menu');
 
         // Load translations
         $this->loadTranslations(__DIR__ . '/../resources/lang', 'nova-menu-builder', true);

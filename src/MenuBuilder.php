@@ -33,7 +33,7 @@ class MenuBuilder extends Tool
      */
     public function renderNavigation()
     {
-        return view('nova-menu::navigation');
+        //return view('nova-menu::navigation');
     }
 
     /** @noinspection PhpUnhandledExceptionInspection */

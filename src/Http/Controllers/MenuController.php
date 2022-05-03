@@ -13,7 +13,8 @@ class MenuController extends Controller
 {
     public function getMenus(Request $request)
     {
-        return MenuBuilder::getMenuClass()::all()->map(function ($menu) {
+        return MenuBuilder::getMenuClass()::where('nodetype', 'menu')
+            ->whereRaw('nlevel(path)=1')->get()->map(function ($menu) {
             return [
                 'id' => $menu->id,
                 'title' => "{$menu->name} ({$menu->slug})",
@@ -113,17 +114,21 @@ class MenuController extends Controller
      * @param OptimistDigital\MenuBuilder\Http\Requests\MenuItemFormRequest $request
      * @return Illuminate\Http\Response
      **/
-    public function createMenuItem(Request $request)
+    public function createMenuItem(MenuItemFormRequest $request)
     {
         $menuItemModel = MenuBuilder::getMenuItemClass();
 
         $data = $request->getValues();
-        $data['order'] = $menuItemModel::max('id') + 1;
 
         $model = new $menuItemModel;
-        foreach ($data as $key => $value) {
+        $model->assignParentValues($data['menu_id']);
+        foreach ($data['values'] as $key => $value) {
+            if (Str::contains($value, '{')) {
+                $value = json_decode($value, true);
+            }
             $model->{$key} = $value;
         }
+
         $model->save();
 
         return response()->json(['success' => true], 200);
@@ -159,7 +164,7 @@ class MenuController extends Controller
         if (!isset($menuItem)) return response()->json(['error' => 'menu_item_not_found'], 400);
         $data = $request->getValues();
 
-        foreach ($data as $key => $value) {
+        foreach ($data['values'] as $key => $value) {
             if (Str::contains($value, '{')) {
                 $value = json_decode($value, true);
             }
@@ -205,6 +210,7 @@ class MenuController extends Controller
             $data = [
                 'name' => $typeClass::getName(),
                 'type' => $typeClass::getType(),
+                'default' => $typeClass::isDefault(),
                 'fields' => MenuBuilder::getFieldsFromMenuItemTypeClass($typeClass, $menu) ?? [],
                 'class' => $typeClass
             ];
@@ -247,7 +253,7 @@ class MenuController extends Controller
         if (empty($menuItem)) return response()->json(['error' => 'menu_item_not_found'], 400);
 
         $this->shiftMenuItemsWithHigherOrder($menuItem);
-        $this->recursivelyDuplicate($menuItem, $menuItem->parent_id, $menuItem->order + 1);
+        $this->recursivelyDuplicate($menuItem, $menuItem->parent, $menuItem->norder + 1);
 
         return response()->json(['success' => true], 200);
     }
@@ -265,14 +271,13 @@ class MenuController extends Controller
     private function shiftMenuItemsWithHigherOrder($menuItem)
     {
         $menuItems = MenuBuilder::getMenuItemClass()
-            ::where('order', '>', $menuItem->order)
-            ->where('menu_id', $menuItem->menu_id)
-            ->where('parent_id', $menuItem->parent_id)
+            ::where('norder', '>', $menuItem->norder)
+            ->where('path', $menuItem->parent)
             ->get();
 
         // Do individual updates to trigger observer(s)
         foreach ($menuItems as $menuItem) {
-            $menuItem->order = $menuItem->order + 1;
+            $menuItem->norder = $menuItem->norder + 1;
             $menuItem->save();
         }
     }
@@ -281,7 +286,7 @@ class MenuController extends Controller
     {
         if (count($menuItem['children']) > 0) {
             foreach ($menuItem['children'] as $i => $child) {
-                $this->saveMenuItemWithNewOrder($i + 1, $child, $menuItem['id']);
+                $this->saveMenuItemWithNewOrder($i + 1, $child, $menuItem['path']);
             }
         }
     }
@@ -290,26 +295,35 @@ class MenuController extends Controller
     {
         $menuItem = MenuBuilder::getMenuItemClass()::find($menuItemData['id']);
         $menuItem->order = $orderNr;
-        $menuItem->parent_id = $parentId;
+        if ($parentId) {
+            $menuItem->path = $parentId . '.' . $menuItem->id;
+        }
         $menuItem->save();
         $this->recursivelyOrderChildren($menuItemData);
     }
 
     protected function recursivelyDuplicate($menuItem, $parentId = null, $order = null)
     {
-        $data = $menuItem->toArray();
-        unset($data['id']);
-        if ($parentId !== null) $data['parent_id'] = $parentId;
-        if ($order !== null) $data['order'] = $order;
-        $data['locale'] = $menuItem->locale;
+        $data = $menuItem->replicate(['children', 'name', 'enabled', 'parent']);
+        $parent = null;
+        if ($parentId !== null) {
+            if (is_string($parentId)) {
+                $parent = MenuBuilder::getMenuItemClass()::query()->where('path', $parentId)
+                    ->first();
+            } else {
+                $parent = $parentId;
+            }
+        }
+        if ($order !== null) $data->norder = $order;
 
         // Save the long way instead of ::create() to trigger observer(s)
-        $menuItemClass = MenuBuilder::getMenuItemClass();
-        $newMenuItem = new $menuItemClass;
-        $newMenuItem->fill($data);
-        $newMenuItem->save();
+        if ($parent) {
+            $data->assignParentValues($parent);
+        }
+        $data->save();
 
-        $children = $menuItem->children;
-        foreach ($children as $child) $this->recursivelyDuplicate($child, $newMenuItem->id);
+        $children = $menuItem->childs();
+
+        foreach ($children as $child) $this->recursivelyDuplicate($child, $data);
     }
 }

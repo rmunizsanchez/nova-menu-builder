@@ -98,4 +98,8 @@ abstract class BaseMenuItemType
     {
         return [];
     }
+
+    public static function isDefault() {
+        return false;
+    }
 }

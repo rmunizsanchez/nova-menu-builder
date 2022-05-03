@@ -92,6 +92,7 @@ export default {
       menu_id: null,
       enabled: true,
       classProp: [],
+      values: {}
     },
     menuItems: [],
     menuItemTypes: void 0,
@@ -145,6 +146,8 @@ export default {
 
       const menuItemTypes = (await api.getMenuItemTypes(this.resourceId, this.selectedLocale)).data;
       this.menuItemTypes = Object.values(menuItemTypes);
+
+      this.linkType = this.menuItemTypes.find(lt => lt.default === true);
 
       this.loadingMenuItems = false;
     },
