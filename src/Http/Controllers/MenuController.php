@@ -190,8 +190,8 @@ class MenuController extends Controller
         $children = $menuItem->children()->get();
         $menuItem->children()->delete();
         $menuItem->delete();
-        Nova::actionEvent()->forResourceDelete($request->user(), $children)->save();
-        Nova::actionEvent()->forResourceDelete($request->user(), collect([$menuItem]))->save();
+        Nova::actionEvent()->forResourceDelete($request->user(), $children);
+        Nova::actionEvent()->forResourceDelete($request->user(), collect([$menuItem]));
         return response()->json(['success' => true], 200);
     }
 
