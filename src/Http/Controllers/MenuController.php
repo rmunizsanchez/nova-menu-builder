@@ -5,6 +5,7 @@ namespace OptimistDigital\MenuBuilder\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
+use Laravel\Nova\Nova;
 use OptimistDigital\MenuBuilder\MenuBuilder;
 use OptimistDigital\MenuBuilder\Models\Menu;
 use OptimistDigital\MenuBuilder\Http\Requests\MenuItemFormRequest;
@@ -129,6 +130,7 @@ class MenuController extends Controller
             $model->{$key} = $value;
         }
 
+        Nova::actionEvent()->forResourceCreate($request->user(), $model)->save();
         $model->save();
 
         return response()->json(['success' => true], 200);
@@ -170,6 +172,8 @@ class MenuController extends Controller
             }
             $menuItem->{$key} = $value;
         }
+        Nova::actionEvent()->forResourceUpdate($request->user(), $menuItem)->save();
+
         $menuItem->save();
         return response()->json(['success' => true], 200);
     }
@@ -180,11 +184,14 @@ class MenuController extends Controller
      * @param $menuItem
      * @return Illuminate\Http\Response
      **/
-    public function deleteMenuItem($menuItemId)
+    public function deleteMenuItem(Request $request, $menuItemId)
     {
         $menuItem = MenuBuilder::getMenuItemClass()::findOrFail($menuItemId);
+        $children = $menuItem->children()->get();
         $menuItem->children()->delete();
         $menuItem->delete();
+        Nova::actionEvent()->forResourceDelete($request->user(), $children)->save();
+        Nova::actionEvent()->forResourceDelete($request->user(), collect([$menuItem]))->save();
         return response()->json(['success' => true], 200);
     }
 
