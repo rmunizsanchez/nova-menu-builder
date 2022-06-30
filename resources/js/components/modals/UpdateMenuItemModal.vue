@@ -234,6 +234,7 @@ export default {
                this.$set(this.newItem.values, field.attribute, values[0]);
              } else {
                 this.$set(this.newItem.values, 'attributes->data->url', values[0]);
+                this.$set(this.newItem.values, field.attribute, null);
              }
           }
 
