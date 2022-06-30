@@ -164,6 +164,7 @@ import Modal from './Modal';
 import Multiselect from 'vue-multiselect';
 import { HandlesValidationErrors } from 'laravel-nova';
 import { Errors } from 'form-backend-validation';
+import {isNumber, isString} from "lodash";
 
 export default {
   mixins: [HandlesValidationErrors],
@@ -226,6 +227,14 @@ export default {
           if (field.component === 'trix-field') {
             this.$set(this.newItem.values, field.attribute, values[0]);
             return;
+          }
+
+          if (field.component === 'nitsnets-multiselect-field') {
+             if (isNumber(values[0])) {
+               this.$set(this.newItem.values, field.attribute, values[0]);
+             } else {
+                this.$set(this.newItem.values, 'attributes->data->url', values[0]);
+             }
           }
 
           // Is array
