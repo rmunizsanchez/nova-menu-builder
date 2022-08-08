@@ -230,12 +230,12 @@ export default {
           }
 
           if (field.component === 'nitsnets-multiselect-field') {
-             console.log(values[0]);
-             if (isNumber(values[0])) {
-               this.$set(this.newItem.values, field.attribute, values[0]);
+
+             if (Number.isNaN(Number.parseInt(values[0]))) {
+               this.$set(this.newItem.values, 'attributes->data->url', values[0]);
+               this.$set(this.newItem.values, field.attribute, null);
              } else {
-                this.$set(this.newItem.values, 'attributes->data->url', values[0]);
-                this.$set(this.newItem.values, field.attribute, null);
+               this.$set(this.newItem.values, field.attribute, values[0]);
              }
              return;
           }
