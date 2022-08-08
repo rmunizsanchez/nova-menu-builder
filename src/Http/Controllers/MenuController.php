@@ -17,13 +17,13 @@ class MenuController extends Controller
     {
         return MenuBuilder::getMenuClass()::where('nodetype', 'menu')
             ->whereRaw('nlevel(path)=1')->get()->map(function ($menu) {
-            return [
+                return [
                 'id' => $menu->id,
                 'title' => "{$menu->name} ({$menu->slug})",
                 'name' => $menu->name,
                 'slug' => $menu->slug,
             ];
-        });
+            });
     }
 
     public function copyMenuItemsToMenu(Request $request)
@@ -43,7 +43,9 @@ class MenuController extends Controller
         $fromMenu = Menu::find($fromMenuId);
         $toMenu = Menu::find($toMenuId);
 
-        if (!$fromMenu || !$toMenu) return response()->json(['error' => 'menu_not_found'], 404);
+        if (!$fromMenu || !$toMenu) {
+            return response()->json(['error' => 'menu_not_found'], 404);
+        }
 
         $maxOrder = $fromMenu->rootMenuItems()->max('order');
         $i = 1;
@@ -81,8 +83,12 @@ class MenuController extends Controller
     {
         $locale = $request->get('locale');
         $menu = MenuBuilder::getMenuClass()::find($menuId);
-        if (empty($menu)) return response()->json(['menu' => 'menu_not_found'], 400);
-        if (empty($locale)) return response()->json(['menu' => 'locale_required_but_missing'], 400);
+        if (empty($menu)) {
+            return response()->json(['menu' => 'menu_not_found'], 400);
+        }
+        if (empty($locale)) {
+            return response()->json(['menu' => 'locale_required_but_missing'], 400);
+        }
 
         $menuItems = $menu
             ->childs();
@@ -163,7 +169,9 @@ class MenuController extends Controller
     {
         $menuItem = MenuBuilder::getMenuItemClass()::find($menuItemId);
 
-        if (!isset($menuItem)) return response()->json(['error' => 'menu_item_not_found'], 400);
+        if (!isset($menuItem)) {
+            return response()->json(['error' => 'menu_item_not_found'], 400);
+        }
         $data = $request->getValues();
 
         foreach ($data['values'] as $key => $value) {
@@ -176,7 +184,7 @@ class MenuController extends Controller
 
         $menuItem->save();
 
-        event(UpdateMenu::dispatch($menuItem->id));
+        event(new UpdateMenu($menuItem->id));
 
         return response()->json(['success' => true], 200);
     }
@@ -207,15 +215,21 @@ class MenuController extends Controller
     public function getMenuItemTypes(Request $request, $menuId)
     {
         $menu = MenuBuilder::getMenuClass()::find($menuId);
-        if ($menu === null) return response()->json(['error' => 'menu_not_found'], 404);
+        if ($menu === null) {
+            return response()->json(['error' => 'menu_not_found'], 404);
+        }
         $locale = $request->get('locale');
-        if ($locale === null) return response()->json(['error' => 'locale_required'], 400);
+        if ($locale === null) {
+            return response()->json(['error' => 'locale_required'], 400);
+        }
 
         $menuItemTypes = [];
         $menuItemTypesRaw = MenuBuilder::getMenuItemTypes();
 
         $formatAndAppendMenuItemType = function ($typeClass) use ($menu, &$menuItemTypes, $locale) {
-            if (!class_exists($typeClass)) return;
+            if (!class_exists($typeClass)) {
+                return;
+            }
 
             $data = [
                 'name' => $typeClass::getName(),
@@ -260,7 +274,9 @@ class MenuController extends Controller
     {
         $menuItem = MenuBuilder::getMenuItemClass()::find($menuItemId);
 
-        if (empty($menuItem)) return response()->json(['error' => 'menu_item_not_found'], 400);
+        if (empty($menuItem)) {
+            return response()->json(['error' => 'menu_item_not_found'], 400);
+        }
 
         $this->shiftMenuItemsWithHigherOrder($menuItem);
         $this->recursivelyDuplicate($menuItem, $menuItem->parent, $menuItem->norder + 1);
@@ -324,7 +340,9 @@ class MenuController extends Controller
                 $parent = $parentId;
             }
         }
-        if ($order !== null) $data->norder = $order;
+        if ($order !== null) {
+            $data->norder = $order;
+        }
 
         // Save the long way instead of ::create() to trigger observer(s)
         if ($parent) {
@@ -334,6 +352,8 @@ class MenuController extends Controller
 
         $children = $menuItem->childs();
 
-        foreach ($children as $child) $this->recursivelyDuplicate($child, $data);
+        foreach ($children as $child) {
+            $this->recursivelyDuplicate($child, $data);
+        }
     }
 }
