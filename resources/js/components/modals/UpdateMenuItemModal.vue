@@ -230,6 +230,7 @@ export default {
           }
 
           if (field.component === 'nitsnets-multiselect-field') {
+             console.log(values[0]);
              if (isNumber(values[0])) {
                this.$set(this.newItem.values, field.attribute, values[0]);
              } else {
