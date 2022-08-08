@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
 use Laravel\Nova\Nova;
+use OptimistDigital\MenuBuilder\Events\UpdateMenu;
 use OptimistDigital\MenuBuilder\MenuBuilder;
 use OptimistDigital\MenuBuilder\Models\Menu;
 use OptimistDigital\MenuBuilder\Http\Requests\MenuItemFormRequest;
@@ -160,7 +161,6 @@ class MenuController extends Controller
      **/
     public function updateMenuItem(MenuItemFormRequest $request, $menuItemId)
     {
-
         $menuItem = MenuBuilder::getMenuItemClass()::find($menuItemId);
 
         if (!isset($menuItem)) return response()->json(['error' => 'menu_item_not_found'], 400);
@@ -175,6 +175,9 @@ class MenuController extends Controller
         Nova::actionEvent()->forResourceUpdate($request->user(), $menuItem)->save();
 
         $menuItem->save();
+
+        event(UpdateMenu::dispatch($menuItem->id));
+
         return response()->json(['success' => true], 200);
     }
 
