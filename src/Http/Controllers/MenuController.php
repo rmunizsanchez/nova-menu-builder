@@ -110,8 +110,8 @@ class MenuController extends Controller
         $i = 1;
         foreach ($items as $item) {
             $id = $item['id'];
-            $menuItem = MenuBuilder::getMenuItemClass()::find($id);
-            $menuItem->load('childs');
+            $menuItem = MenuBuilder::getMenuItemClass()::find($menuId);
+            $children= $menuItem->children()->get();
             $this->saveMenuItemWithNewOrder($i, $item, $menuItem);
             $i++;
         }
