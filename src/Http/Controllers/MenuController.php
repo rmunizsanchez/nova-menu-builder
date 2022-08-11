@@ -109,7 +109,7 @@ class MenuController extends Controller
 
         $i = 1;
         foreach ($items as $item) {
-            $id = $item->id;
+            $id = $item['id'];
             $this->saveMenuItemWithNewOrder($i, $item);
             $i++;
         }
