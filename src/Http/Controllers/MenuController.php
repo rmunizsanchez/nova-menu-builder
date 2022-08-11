@@ -110,7 +110,9 @@ class MenuController extends Controller
         $i = 1;
         foreach ($items as $item) {
             $id = $item['id'];
-            $this->saveMenuItemWithNewOrder($i, $item);
+            $menuItem = MenuBuilder::getMenuItemClass()::find($id);
+            $menuItem->load('childs');
+            $this->saveMenuItemWithNewOrder($i, $item, $menuItem);
             $i++;
         }
         event(new UpdateMenu($id));
@@ -310,24 +312,24 @@ class MenuController extends Controller
         }
     }
 
-    private function recursivelyOrderChildren($menuItem)
+    private function recursivelyOrderChildren($menuItem, $all)
     {
         if (count($menuItem['children']) > 0) {
             foreach ($menuItem['children'] as $i => $child) {
-                $this->saveMenuItemWithNewOrder($i + 1, $child, $menuItem['path']);
+                $this->saveMenuItemWithNewOrder($i + 1, $child, $all, $menuItem['path']);
             }
         }
     }
 
-    private function saveMenuItemWithNewOrder($orderNr, $menuItemData, $parentId = null)
+    private function saveMenuItemWithNewOrder($orderNr, $menuItemData, $all, $parentId = null)
     {
-        $menuItem = MenuBuilder::getMenuItemClass()::find($menuItemData['id']);
+        $menuItem = $all->firstWhere('id', $menuItemData['id']);
         if ($parentId) {
             $menuItem->order = $orderNr;
             $menuItem->path = $parentId . '.' . $menuItem->id;
         }
         $menuItem->save();
-        $this->recursivelyOrderChildren($menuItemData);
+        $this->recursivelyOrderChildren($menuItemData, $all);
     }
 
     protected function recursivelyDuplicate($menuItem, $parentId = null, $order = null)
