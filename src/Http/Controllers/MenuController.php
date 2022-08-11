@@ -108,14 +108,14 @@ class MenuController extends Controller
         $items = $request->get('menuItems');
 
         $i = 1;
+        $menuItem = MenuBuilder::getMenuItemClass()::find($menuId);
+        $children= $menuItem->children()->get();
         foreach ($items as $item) {
             $id = $item['id'];
-            $menuItem = MenuBuilder::getMenuItemClass()::find($menuId);
-            $children= $menuItem->children()->get();
-            $this->saveMenuItemWithNewOrder($i, $item, $menuItem);
+            $this->saveMenuItemWithNewOrder($i, $item, $children, $menuItem['path']);
             $i++;
         }
-        event(new UpdateMenu($id));
+        event(new UpdateMenu($menuId));
 
         return response()->json(['success' => true], 200);
     }
