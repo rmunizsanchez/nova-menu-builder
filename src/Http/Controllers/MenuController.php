@@ -109,9 +109,11 @@ class MenuController extends Controller
 
         $i = 1;
         foreach ($items as $item) {
+            $id = $item->id;
             $this->saveMenuItemWithNewOrder($i, $item);
             $i++;
         }
+        event(new UpdateMenu($id));
 
         return response()->json(['success' => true], 200);
     }
@@ -320,8 +322,8 @@ class MenuController extends Controller
     private function saveMenuItemWithNewOrder($orderNr, $menuItemData, $parentId = null)
     {
         $menuItem = MenuBuilder::getMenuItemClass()::find($menuItemData['id']);
-        $menuItem->order = $orderNr;
         if ($parentId) {
+            $menuItem->order = $orderNr;
             $menuItem->path = $parentId . '.' . $menuItem->id;
         }
         $menuItem->save();

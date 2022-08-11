@@ -224,7 +224,7 @@ export default {
 
     async updateMenu() {
       try {
-        await api.saveItems(this.resourceId, this.menuItems);
+        await api.saveItems(this.resourceId, this.reduceMenuOrder(this.menuItems));
         this.$toasted.show(this.__('novaMenuBuilder.toastReorderSuccess'), { type: 'success' });
       } catch (e) {
         this.$toasted.show(this.__('novaMenuBuilder.serverError'), { type: 'error' });
@@ -257,6 +257,21 @@ export default {
     updateLinkType(linkType) {
       this.linkType = this.menuItemTypes.find(type => type.class === linkType);
       this.newItem.value = '';
+    },
+    reduceMenuOrder(menuItems, localItemsState = null) {
+      return menuItems.map(item => {
+        const localItemState = Array.isArray(localItemsState)
+          ? localItemsState.find(localItem => +localItem.id === +item.id)
+          : false;
+
+        return {
+          id: item.id,
+          path: item.path,
+          children: Array.isArray(item.children)
+            ? this.reduceMenuOrder(item.children, localItemState && localItemState.children)
+            : item.children,
+        };
+      });
     },
   },
 };
