@@ -259,7 +259,7 @@ export default {
       this.newItem.value = '';
     },
     reduceMenuOrder(menuItems, localItemsState = null) {
-      return menuItems.map(item => {
+      const ss = menuItems.map(item => {
         const localItemState = Array.isArray(localItemsState)
           ? localItemsState.find(localItem => +localItem.id === +item.id)
           : false;
@@ -272,6 +272,8 @@ export default {
             : item.children,
         };
       });
+      console.log(ss);
+      return ss;
     },
   },
 };
