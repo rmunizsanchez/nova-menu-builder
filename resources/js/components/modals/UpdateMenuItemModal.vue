@@ -164,8 +164,7 @@ import Modal from './Modal';
 import Multiselect from 'vue-multiselect';
 import { HandlesValidationErrors } from 'laravel-nova';
 import { Errors } from 'form-backend-validation';
-import moment from 'moment';
-import tz from 'moment-timezone';
+import moment from 'moment-timezone/builds/moment-timezone-with-data';
 import {isNumber, isString} from "lodash";
 
 export default {
@@ -242,9 +241,10 @@ export default {
           }
 
           if (field.component === 'date-time') {
-            if (values[0] !== '') {
-              let number = moment(values[0], field.format).tz(Nova.config.timezone).valueOf();
-              this.$set(this.newItem.values, field.attribute, number);
+            if (values[0] && (values[0]).indexOf('-') >= 1) {
+              moment.tz.link(Nova.config.timezone);
+              let number = moment.tz(values[0],Nova.config.timezone);
+              this.$set(this.newItem.values, field.attribute, number.valueOf());
             } else {
               this.$set(this.newItem.values, field.attribute, values[0]);
             }
