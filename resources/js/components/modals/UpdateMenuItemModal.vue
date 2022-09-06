@@ -164,6 +164,8 @@ import Modal from './Modal';
 import Multiselect from 'vue-multiselect';
 import { HandlesValidationErrors } from 'laravel-nova';
 import { Errors } from 'form-backend-validation';
+import moment from 'moment';
+import tz from 'moment-timezone';
 import {isNumber, isString} from "lodash";
 
 export default {
@@ -230,7 +232,6 @@ export default {
           }
 
           if (field.component === 'nitsnets-multiselect-field') {
-
              if (Number.isNaN(Number.parseInt(values[0]))) {
                this.$set(this.newItem.values, 'attributes->data->url', values[0]);
                this.$set(this.newItem.values, field.attribute, null);
@@ -238,6 +239,16 @@ export default {
                this.$set(this.newItem.values, field.attribute, values[0]);
              }
              return;
+          }
+
+          if (field.component === 'date-time') {
+            if (values[0] !== '') {
+              let number = moment(values[0], field.format).tz(Nova.config.timezone).valueOf();
+              this.$set(this.newItem.values, field.attribute, number);
+            } else {
+              this.$set(this.newItem.values, field.attribute, values[0]);
+            }
+            return;
           }
 
           // Is array
