@@ -347,6 +347,7 @@ class MenuController extends Controller
         if ($order !== null) {
             $data->norder = $order;
         }
+        unset($data->order);
 
         // Save the long way instead of ::create() to trigger observer(s)
         if ($parent) {
