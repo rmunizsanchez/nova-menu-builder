@@ -31,7 +31,7 @@
           </div>
         </div>
 
-        <div class="flex border-t border-40">
+       <!-- <div class="flex border-t border-40">
           <div class="w-1/5 py-4">
             <label class="inline-block text-80 pt-2 leading-tight">{{ __('novaMenuBuilder.menuItemType') }}</label>
           </div>
@@ -55,6 +55,7 @@
             </help-text>
           </div>
         </div>
+        -->
 
         <template v-if="linkType.type === 'static-url'">
           <div class="flex border-t border-40">
