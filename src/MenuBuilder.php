@@ -101,7 +101,9 @@ class MenuBuilder extends Tool
         $menuItemRules = $menuLinkableClass ? $menuLinkableClass::getRules() : [];
         $dataRules = [];
         foreach ($menuItemRules as $key => $rule) {
-            if ($key !== 'value' && !Str::startsWith($key, 'data->')) $key = "data->{$key}";
+            if ($key !== 'value' && !Str::startsWith($key, 'data->')) {
+                $key = "data->{$key}";
+            }
             $dataRules[$key] = $rule;
         }
 
