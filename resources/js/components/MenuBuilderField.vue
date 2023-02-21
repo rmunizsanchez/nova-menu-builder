@@ -188,8 +188,6 @@ export default {
         enabled: true,
         menu_id: this.resourceId,
       };
-
-      this.linkType = '';
     },
 
     async confirmItemCreate() {
