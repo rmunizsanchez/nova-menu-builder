@@ -6,6 +6,7 @@
       :activeLocale="selectedLocale"
       :menuCount="field.menuCount"
       :showDuplicate="field.showDuplicate"
+      :showButton="loadingMenuItems"
       @addMenuItem="openAddModal"
       @changeLocale="setSelectedLocale"
       @refreshItems="refreshData"
@@ -95,7 +96,7 @@ export default {
       values: {}
     },
     menuItems: [],
-    menuItemTypes: void 0,
+    menuItemTypes: [],
   }),
 
   beforeMount() {
@@ -130,10 +131,6 @@ export default {
     openAddModal() {
       this.update = false;
       this.showAddModal = true;
-      if (this.linkType == '') {
-        this.linkType = this.menuItemTypes.find(lt => lt.default === true);
-      }
-
     },
 
     closeModal() {
@@ -193,7 +190,7 @@ export default {
         menu_id: this.resourceId,
       };
 
-      this.linkType = '';
+      this.linkType = this.menuItemTypes.find(lt => lt.default === true);
     },
 
     async confirmItemCreate() {
