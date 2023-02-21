@@ -130,6 +130,10 @@ export default {
     openAddModal() {
       this.update = false;
       this.showAddModal = true;
+      if (this.linkType == '') {
+        this.linkType = this.menuItemTypes.find(lt => lt.default === true);
+      }
+
     },
 
     closeModal() {
@@ -188,6 +192,8 @@ export default {
         enabled: true,
         menu_id: this.resourceId,
       };
+
+      this.linkType = '';
     },
 
     async confirmItemCreate() {
