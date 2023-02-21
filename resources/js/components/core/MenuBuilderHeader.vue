@@ -32,7 +32,7 @@
     <button
       id="add-new-menu-item-btn"
       :title="__('novaMenuBuilder.addMenuItem')"
-      class="btn btn-default btn-icon bg-primary text-white flex-no-shrink"
+      class="btn btn-default btn-primary btn-icon bg-primary text-white flex-no-shrink"
       @click.prevent="$emit('addMenuItem')"
     >
       {{ __('novaMenuBuilder.addMenuItem') }}
