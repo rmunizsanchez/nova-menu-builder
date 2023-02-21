@@ -30,6 +30,7 @@
     </button>
 
     <button
+      v-if="!showButton"
       id="add-new-menu-item-btn"
       :title="__('novaMenuBuilder.addMenuItem')"
       class="btn btn-default btn-primary btn-icon bg-primary text-white flex-no-shrink"
@@ -56,7 +57,7 @@ import CopyMenuItemsModal from '../modals/CopyMenuItemsModal';
 export default {
   components: { CopyMenuItemsModal },
 
-  props: ['locales', 'activeLocale', 'resourceId', 'menuCount', 'showDuplicate'],
+  props: ['locales', 'activeLocale', 'resourceId', 'menuCount', 'showDuplicate', 'showButton'],
 
   data: () => ({
     showCopyModal: false,
