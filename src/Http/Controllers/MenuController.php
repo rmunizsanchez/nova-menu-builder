@@ -327,6 +327,7 @@ class MenuController extends Controller
         if ($parentId) {
             $menuItem->order = $orderNr;
             $menuItem->path = $parentId . '.' . $menuItem->id;
+            $menuItemData['path'] = $parentId . '.' . $menuItem->id;
         }
         $menuItem->save();
         $this->recursivelyOrderChildren($menuItemData, $all);
