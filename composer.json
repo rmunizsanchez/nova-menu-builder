@@ -30,7 +30,7 @@
   "require": {
     "php": ">=7.2.0",
     "doctrine/dbal": ">=2.0.0",
-    "laravel/nova": "^3.0",
+    "laravel/nova": "^4.0",
     "outl1ne/nova-translations-loader": "^5.0",
     "optimistdigital/nova-tailwind": "^1.0.2"
   },
