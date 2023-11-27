@@ -8,7 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Laravel\Nova\Nova;
 use OptimistDigital\MenuBuilder\Commands\CreateMenuItemType;
 use OptimistDigital\MenuBuilder\Http\Middleware\Authorize;
-use OptimistDigital\NovaTranslationsLoader\LoadsNovaTranslations;
+use Outl1ne\NovaTranslationsLoader\LoadsNovaTranslations;
 
 class MenuBuilderServiceProvider extends ServiceProvider
 {
