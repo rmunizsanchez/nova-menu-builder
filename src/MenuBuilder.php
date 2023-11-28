@@ -164,4 +164,11 @@ class MenuBuilder extends Tool
     {
         return config("nova-menu.show_duplicate", true);
     }
+
+    public function menu(Request $request)
+    {
+        return MenuSection::make('menu')
+            ->path('/nova-vendor/nova-menu')
+            ->icon('server');
+    }
 }
