@@ -168,8 +168,5 @@ class MenuBuilder extends Tool
 
     public function menu(Request $request)
     {
-        return MenuSection::make('menu')
-            ->path('/nova-vendor/nova-menu')
-            ->icon('server');
     }
 }
