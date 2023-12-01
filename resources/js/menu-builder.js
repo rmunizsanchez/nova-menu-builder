@@ -3,18 +3,12 @@ import MenuIndexView from './views/MenuIndexView';
 import MenuBuilder from './components/MenuBuilder';
 import MenuBuilderField from './components/MenuBuilderField';
 
-Nova.booting((Vue, router) => {
-  router.addRoutes([
-    {
-      name: 'menus',
-      path: `/resources/${Nova.config.menuBuilderUriKey}`,
-      component: MenuIndexView,
-    },
-  ]);
+Nova.booting((app, store) => {
+    Nova.inertia("menus", MenuIndexView.default);
 
-  Vue.use(ToggleButton);
+    app.use(ToggleButton);
 
-  Vue.component('menu-builder', MenuBuilder);
-  Vue.component('form-menu-builder-field', MenuBuilderField);
-  Vue.component('detail-menu-builder-field', MenuBuilderField);
+    app.component('menu-builder', MenuBuilder);
+    app.component('form-menu-builder-field', MenuBuilderField);
+    app.component('detail-menu-builder-field', MenuBuilderField);
 });

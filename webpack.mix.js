@@ -1,9 +1,10 @@
-const mix = require('laravel-mix');
+let mix = require('laravel-mix')
+
+require('./nova.mix')
 
 mix
   .setPublicPath('dist')
   .js('resources/js/menu-builder.js', 'js')
-  .vue({
-    extractStyles: mix.inProduction() ? 'css/menu-builder.css' : false,
-    processCssUrls: false,
-  });
+  .vue({ version: 3 })
+  //.css('resources/css/tool.css', 'css')
+  .nova('{{ name }}')
